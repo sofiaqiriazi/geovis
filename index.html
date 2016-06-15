@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>UNHCR WOC</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<link rel="shortcut icon" href="http://cartodb.com/assets/favicon.ico" />
+	<style>
+		body{
+			height: 100%;
+			padding: 0;
+			margin: 0;
+			font-family: 10px Arial, sans-serif;
+			overflow: hidden;
+		}
+		#map{
+			width: 100%;
+			position: absolute;
+			top: 0px;
+			left:0px;
+			bottom:0px;
+			z-index:3;
+		}
+		#chartPanel{
+			margin: 0px 20px 20px 20px;
+			position: absolute;
+			right: 0px;
+			left: 350px;
+			bottom: 0px;
+			background-color: #ffffff;
+			-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=70)";/* IE 8 */
+			filter: alpha(opacity=70);/* IE 5-7 */
+			-moz-opacity: 0.7;/* Netscape */
+			-khtml-opacity: 0.7;/* Safari 1.x */
+			opacity: 0.7;/* Good browsers */
+		}
+		#close-window {
+			font-family:sans-serif;
+			font-size: 12pt;
+			position:absolute;
+			display: inline-block;
+			background: #ffffff;
+			padding: 3px 2px;
+			border: 0px solid #444444;
+			border-radius:2px;
+			color: #444444;
+			font-weight: bold;
+			font-size: 12pt;
+			text-decoration: none;
+			top:10px;
+			left: 10px;
+		}
+		#leg{
+			padding:15px;
+			color:#666;
+			text-align:justify;
+			font-family:sans-serif;
+			font-size:8pt;
+			position:absolute;
+			width:300px;
+			top:10px;
+			left: 10px;
+			bottom: 10px;
+			background-color: rgba(255, 255, 255,.7);
+			border:1px solid #aaa;
+			border-radius:5px;
+			box-shadow: 1px 1px 1px #888888;
+			z-index: 5;
+			overflow-y: hidden;
+			overflow-x: hidden;
+		}
+		.subtitle{
+			display: block;
+			position: relative;
+			text-align: left;
+			border: 0;
+			background-color:rgba(255, 255, 255,.0);
+			color:#666;
+		}
+		.legtext{
+			display:block;
+			position: relative;
+		}
+		.leglabel {
+			margin:auto;
+			text-align: center;
+		}
+		.figure{
+			font-size: 20pt;
+		}
+		.leaflet-control-scale{
+			padding:0px 350px;
+		}
+		.cartodb-popup-close-button {
+			position: absolute;
+			top: -12px;
+			right: -11px;
+			width: 26px;
+			height: 26px;
+			background: url('http://libs.cartodb.com/cartodb.js/v3/themes/img/dark.png') no-repeat 0 -23px;
+			text-indent: -9999px;
+			font-size: 0;
+			line-height: 0;
+			opacity: 1;
+			text-transform: uppercase;
+			z-index: 3;
+		}
+		.custom_infowindow{
+			postion: relative;
+			width:200px;
+		}
+	</style>
+	<link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+	<script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/modules/data.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+</head>
+<body>
+	<div id="map">
+	</div>
+	<div id="chartPanel">
+		<div id="container"></div>
+		<a href="#" id="close-window">X</a>
+	</div>
+	<div id="leg">
+		<h2>Sea Arrivals and Reported Deaths and Missing Persons</h2><h4><input type="text" class="subtitle" id="region" value="Mediterranean"></h4>
+			<span class="figure" id="f1" style="color:#18375F;">208,150</span><span> arrivals by sea in 2016</span><br/>
+			<span class="figure" id="f2" style="color:#18375F;">1,015,078</span><span> arrivals by sea in 2015</span><br/>
+			<span class="figure" id="f3" style="color:#660000;">2,856</span><span> dead and missing in 2016</span><br/>
+			<span class="figure" id="f4" style="color:#660000;">3,770</span><span> dead and missing in 2015</span><br/>
+		<div class="legtext"><p>An increasing number of refugees and migrants take their chances aboard unseaworthy boats and dinghies in a desperate bid to reach Europe.The vast majority of those attempting this dangerous crossing are in need of international protection, fleeing war, violence and persecution in their country of origin. Every year these movements continue to exact a devastating toll on human life.</p>
+		<p>Click on a region or event for more information.</p>
+		<p>Sources: <a href="http://data.unhcr.org">UNHCR</a>, <a href="http://missingmigrants.iom.int/">IOM</a></p></div>
+		<p>Last Update: <span class="date" id="date"></span></p><HR>
+		<table class="leglabel">
+			<tr><td style="width:10px;"></td>
+			<td style="width:10px;">1<div style="display:table-cell; vertical-align:middle; height:6px; width:6px; border: 0px solid #fff; border-radius:6px; background:#660000;opacity: 0.7;"></div></td>
+			<td style="width:15px;">10<div style="display:table-cell; vertical-align:middle; height:12px; width:12px; border: 0px solid #fff; border-radius:12px; background:#660000;opacity: 0.7; color:white;"></div></td>
+			<td style="width:25px;">100<div style="display:table-cell; vertical-align:middle; height:20px; width:20px; border: 0px solid #fff; border-radius:20px; background:#660000;opacity: 0.7; color:white;"></div></td>
+			<td style="width:35px; color:white;">x<div style="display:table-cell; vertical-align:middle; height:30px; width:30px; border: 0px solid #fff; border-radius:30px; background:#660000;opacity: 0.7; color:white;">200</div></td>
+			<td style="width:45px; color:white;">x<div style="display:table-cell; vertical-align:middle; height:40px; width:40px; border: 0px solid #fff; border-radius:40px; background:#660000;opacity: 0.7; color:white;">400</div></td><td style="width:10px;"></td><td rowspan="2"><div style="display:table-cell; vertical-align:middle; height:80px; width:80px; border: 0px solid #fff; border-radius:80px; background:#18375F;opacity: 0.7; color:white;">Arrivals</div></td></tr>
+			<tr><td colspan="7">Reported Dead or Missing Individuals</td></tr>
+		</table>
+	</div>
+	
+	    <!-- HTML template for custom infowindow -->
+    <script type="infowindow/html" id="infowindow_template">
+		<div class="custom_infowindow">
+		<div class="cartodb-tooltip-content-wrapper dark">
+			<a href="#close" class="cartodb-popup-close-button close">x</a>
+			<div class="cartodb-tooltip-content">
+				<p>{{date}}</p>
+				<h4>individuals</h4>
+				<p>{{dead_miss}}</p>
+				<h4>location</h4>
+				<p>{{location}}</p>
+				<h4>route</h4>
+				<p>{{route}}</p>
+				<h4>source</h4>
+				<p>{{source_url}}</p>
+			</div>
+		</div>
+    </script>
+	
+	<script>
+	function main() {
+		
+		var map, ia, aa, route, country;
+		
+		var base = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'});
+		
+		var sql = new cartodb.SQL({ user: 'unhcrinnovation' });
+
+		map = new L.Map('map', {
+			center: [35,13], 
+			zoom: 5,
+			layers: base,
+			zoomControl: false
+		});
+
+		L.control.scale({position: "bottomleft"}).addTo(map);
+		L.control.zoom({position: "topright"}).addTo(map);
+		
+		cartodb.createLayer(map, {
+			user_name: 'unhcrinnovation',
+			type: 'cartodb',
+			sublayers: [{
+				sql: "SELECT * FROM zones",
+				cartocss: '#zones {polygon-fill: #000000; polygon-opacity: 0; line-color: rgba(0,0,0,.2);}',
+				interactivity: "the_geom,cartodb_id,dest,id,route"
+			}]}).addTo(map)
+			.on('done', function(layer) {
+				var sub3 = layer.getSubLayer(0);
+				sub3.setInteraction(true);
+				sub3.on('featureClick', function(e, ll, pos, data) {
+					if (data.route == route){}
+					else{
+						ia=[]; aa=[]; route=data.route.toString(); country=data.dest.toString();
+						sql.execute("SELECT date,dead_miss FROM incidents_3105 WHERE route='" +data.route+"'")
+							.done(function(d){
+								d.rows.forEach(function inc(e,i,a){
+										ia.push([Date.parse(e.date),e.dead_miss]);
+								});
+								ia.sort(function(a,b){return a[0]-b[0]});
+								makeChart(country,route,ia,aa);
+							});
+						sql.execute("SELECT date,val FROM arrivals WHERE route='" +data.route+"'")
+							.done(function(f){
+								f.rows.forEach(function arr(g,i,a){
+									aa.push([Date.parse(g.date),g.val]);
+								});
+								aa.sort(function(a,b){return a[0]-b[0]});
+								makeChart(country,route,ia,aa);
+							});
+						sql.execute("SELECT a2015,a2016,i2015,i2016 FROM total_arrivals WHERE route='" +data.route+"'")
+							.done(function(h){
+								$( "#region" ).val( route + " Mediterranean");
+								$( "#f1" ).html( h.rows[0].a2016 );
+								$( "#f2" ).html( h.rows[0].a2015 );
+								$( "#f3" ).html( h.rows[0].i2016 );
+								$( "#f4" ).html( h.rows[0].i2015 );
+							});
+					}
+					$("#chartPanel").css("z-index", "4");
+				});
+			});
+
+		var arrStyle = '#total_arrivals{ marker-fill-opacity: 0.8; marker-line-color: #FFF;'+
+			'marker-line-width: 0.5; marker-line-opacity: 0.4; marker-placement: point;'+
+			'marker-multi-policy: largest; marker-type: ellipse; marker-fill: #18375F; marker-allow-overlap: true;'+
+			'text-name: [sval]; text-placement: point; text-face-name: "Open Sans Regular";'+
+			'text-size: 14; text-fill: #fff; text-allow-overlap: true; text-avoid-edges: false;'+
+			'[val > 1000000] {marker-width:150;} [val < 500000] {marker-width:100;} [val < 10000] {marker-width: 50;}}';
+
+		cartodb.createLayer(map, {
+			user_name: 'unhcrinnovation',
+			type: 'cartodb',
+			sublayers: [{
+				sql: "SELECT * FROM total_arrivals",
+				cartocss: arrStyle,
+				interactivity: "the_geom,cartodb_id,name,val,route,sval",
+			}]}).addTo(map)
+			.on('done', function(layer) {
+				var sub2 = layer.getSubLayer(0);
+				sub2.setInteraction(true);
+			});
+	
+		var incStyle = '#incidents_3105{ marker-fill-opacity: 0.6; marker-line-color: #fff;'+
+			'marker-line-width: .5; marker-line-opacity: 0.4; marker-placement: point;'+
+			'marker-multi-policy: largest; marker-type: ellipse; marker-fill: #660000;'+
+			'marker-allow-overlap: true; marker-clip: false; marker-comp-op: darken;'+
+			'[dead_miss < 400] {marker-width:30;} [dead_miss < 200] {marker-width:20;}' +
+			'[dead_miss < 100] {marker-width:15;} [dead_miss < 50] {marker-width: 12;}' +
+			'[dead_miss < 10] {marker-width: 8;} [dead_miss < 2] {marker-width: 6;}  [dead_miss > 400] {marker-width:40;}}';
+
+		cartodb.createLayer(map, {
+			user_name: 'unhcrinnovation',
+			type: 'cartodb',
+			sublayers: [{
+				sql: "SELECT * FROM incidents_3105",
+				cartocss: incStyle,
+				interactivity: "the_geom,cartodb_id,date,dead,dead_miss,location,missing,route,source_url,x,y"
+			}],
+			legends:true
+			}).addTo(map)
+			.on('done', function(layer) {
+				var sub1 = layer.getSubLayer(0);
+				sub1.setInteraction(true);
+				cdb.vis.Vis.addInfowindow(map, layer, ['date','dead_miss','location','route','source_url'],
+					{infowindowTemplate: $('#infowindow_template').html()});
+			});
+
+	}
+	
+	function makeChart(country,route,ia,aa){
+		$('#container').highcharts({
+			chart: {
+				zoomType: 'x',
+				backgroundColor: null,
+				style: {
+					fontFamily: 'sans-serif',
+				}
+			},
+			title: {
+				text: route + " Mediterranean",
+			},
+			subtitle: {
+				text: "Monthly Arrivals and Reported Incidents",
+			},
+			xAxis: {
+				type: 'datetime',
+				title: {
+					text: 'Date'
+				}
+			},
+			yAxis: [{ // Primary yAxis
+				labels: {
+					format: '{value}',
+					style: {
+						color: "#660000"
+					}
+				},
+				title: {
+					text: 'Reported Deaths or Missing Persons',
+				}
+			}, { // Secondary yAxis
+				labels: {
+					format: '{value}',
+					style: {
+						color: "#18375F"
+					}
+				},
+				title: {
+					text: 'Monthly Arrivals to ' + country,
+				},
+				opposite: true
+			}],
+			tooltip: {
+				shared: false
+			},
+			plotOptions: {
+				column: {
+					color: "#660000",
+					pointPadding: -.3,
+					borderWidth: 1,
+					borderColor: "#ffffff"
+				},
+				line: {
+					color: "#18375F",
+					lineWidth: 2,
+					dataLabels:{
+						enable: true
+					},
+					enableMouseTracking: false
+				},
+				series: {
+					stacking: 'normal',
+				}
+			},
+			series: [{
+				name: 'Individuals',
+				yAxis: 0,
+				type: 'column',
+				data: ia,
+			},{
+				name: 'Arrivals',
+				yAxis: 1,
+				type: 'line',
+				data: aa,
+				marker: {
+					radius: 3,
+					enabled: true
+				}
+			}]
+		});
+	}
+
+	$(document).on('click', '#close-window', function () {
+		$("#chartPanel").css("z-index", "1");
+	});
+	
+	window.onload = main;
+	</script>
+</body>
+</html>

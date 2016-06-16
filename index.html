@@ -226,11 +226,13 @@
 				});
 			});
 
-		var arrStyle = '#total_arrivals{ marker-fill-opacity: 0.8; marker-line-color: #FFF;'+
+		<!--remove line 5 to switch back to sybil's code-->
+		var arrStyle = '#total_arrivals{ marker-fill-opacity: 1.8; marker-line-color: #FFF;'+
 			'marker-line-width: 0.5; marker-line-opacity: 0.4; marker-placement: point;'+
-			'marker-multi-policy: largest; marker-type: ellipse; marker-fill: #18375F; marker-allow-overlap: true;'+
+			'marker-multi-policy: largest; marker-type: ellipse; marker-fill: #18375F; marker-allow-overlap: false;'+
 			'text-name: [sval]; text-placement: point; text-face-name: "Open Sans Regular";'+
-			'text-size: 14; text-fill: #fff; text-allow-overlap: true; text-avoid-edges: false;'+
+			'text-size: 14; text-fill: #fff; text-allow-overlap: false; text-avoid-edges: false;'+
+			'text-placement-type: simple; text-label-position-tolerance: 10; text-min-padding: 10;'+
 			'[val > 1000000] {marker-width:150;} [val < 500000] {marker-width:100;} [val < 10000] {marker-width: 50;}}';
 
 		cartodb.createLayer(map, {
